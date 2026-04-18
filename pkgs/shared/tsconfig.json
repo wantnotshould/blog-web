@@ -1,0 +1,5 @@
+{
+  "compilerOptions": {
+    "types": ["pinia", "pinia-plugin-persistedstate", "vite/client"]
+  }
+}

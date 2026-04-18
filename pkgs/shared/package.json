@@ -1,0 +1,12 @@
+{
+  "name": "@blog/shared",
+  "private": true,
+  "dependencies": {
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1"
+  },
+  "devDependencies": {
+    "@vue/tsconfig": "^0.9.1",
+    "vite": "^8.0.8"
+  }
+}
