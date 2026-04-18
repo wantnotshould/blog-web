@@ -3,7 +3,7 @@ import type { PiniaPluginContext } from 'pinia'
 export const webUI = 'cdme_ui'
 export const adminUI = 'cdme_admin_ui'
 
-const uiStoreIds = [webUI, adminUI]
+const uiStateIds = [webUI, adminUI]
 
 export const applyTheme = (isDark: boolean) => {
   if (typeof document === 'undefined') return
@@ -20,7 +20,7 @@ export const applyTheme = (isDark: boolean) => {
 }
 
 export function theme({ store }: PiniaPluginContext) {
-  if (!uiStoreIds.includes(store.$id)) return
+  if (!uiStateIds.includes(store.$id)) return
   if (typeof window === 'undefined') return
 
   const initTheme = () => {

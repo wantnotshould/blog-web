@@ -3,7 +3,7 @@ import { useUIState } from '@/stores/uiStore'
 import Footer from './Footer.vue'
 import Header from './Header.vue'
 
-const uiStore = useUIState()
+const uiState = useUIState()
 </script>
 
 <template>
@@ -15,7 +15,7 @@ const uiStore = useUIState()
       </div>
     </main>
     <Footer />
-    <div class="theme" @click="uiStore.toggleTheme">
+    <div class="theme" @click="uiState.toggleTheme">
       <div class="cdme-icon icon-mask"></div>
     </div>
   </div>
