@@ -1,3 +1,4 @@
+import { useUserStore } from '@/stores/userStore'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -54,6 +55,24 @@ const router = createRouter({
       ],
     },
   ],
+})
+
+const whiteList = ['/login']
+
+router.beforeEach(async (to, _from) => {
+  if (whiteList.includes(to.path)) return true
+
+  const userStore = useUserStore()
+
+  if (!userStore.info && userStore.isExpired()) {
+    await userStore.fetchUserInfo()
+  }
+
+  if (to.meta.requiresAuth && !userStore.info) {
+    return { path: '/login', query: { r: to.fullPath } }
+  }
+
+  return true
 })
 
 export default router
