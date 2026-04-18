@@ -1,27 +1,73 @@
-import { blogCreate, blogDelete, blogInfo, blogList, blogUpdate } from '@/api/handler/blog'
-import type { BlogCreateReq, BlogListReq, BlogUpdateReq } from '@/api/req/blog'
+import {
+  postCategory,
+  postCreate,
+  postDelete,
+  postInfo,
+  postList,
+  postStatus,
+  postUpdate,
+} from '@/api/handler/blog'
+import type { PostCreateReq, PostListReq, PostUpdateReq } from '@/api/req/blog'
 import type { DeleteReq, InfoReq } from '@/api/req/req'
-import type { BlogInfoResp, BlogListItemResp } from '@/api/resp/blog'
+import type { PostInfoResp, PostListItemResp, PostOptionItemResp } from '@/api/resp/blog'
 import type { PageContent } from '@/api/resp/resp'
 import { handlerError } from '@/utils/error'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { reactive, ref } from 'vue'
 
+export const postOptionToMap = (list: PostOptionItemResp[]) => {
+  const map: Record<number, string> = {}
+  list.forEach(item => {
+    map[Number(item.id)] = item.label
+  })
+  return map
+}
+
+export const postCategoryRes = ref<PostOptionItemResp[]>([])
+export const queryPostCategory = async () => {
+  try {
+    const { data } = await postCategory()
+    if (data.status) {
+      postCategoryRes.value = data.data
+    } else {
+      throw new Error(data.message)
+    }
+  } catch (err) {
+  } finally {
+  }
+}
+
+export const postStatusRes = ref<PostOptionItemResp[]>([])
+export const queryPostStatus = async () => {
+  try {
+    const { data } = await postStatus()
+    if (data.status) {
+      postStatusRes.value = data.data
+    } else {
+      throw new Error(data.message)
+    }
+  } catch (err) {
+  } finally {
+  }
+}
+
 export const blogListLoading = ref(false)
-export const blogListCond = reactive<BlogListReq>({
+export const blogListCond = reactive<PostListReq>({
+  category_id: 0,
+  status: 0,
   page: 1,
   per_page: 20,
 })
-export const blogListRes = ref<PageContent<BlogListItemResp>>({
+export const blogListRes = ref<PageContent<PostListItemResp>>({
   count: 0,
   content: [],
 })
 
-export const queryBlogList = async (param: BlogListReq = { page: 1, per_page: 20 }) => {
+export const queryBlogList = async (param: PostListReq = { page: 1, per_page: 20 }) => {
   blogListLoading.value = true
   Object.assign(blogListCond, param)
   try {
-    const { data } = await blogList(param)
+    const { data } = await postList(param)
     if (data.status) {
       blogListRes.value = data.data
     } else {
@@ -42,9 +88,9 @@ export const handlerBlogPerPageChange = (perPage: number) => {
 }
 
 export const blogInfoLoading = ref(false)
-export const blogInfoRes = ref<BlogInfoResp>({
+export const blogInfoRes = ref<PostInfoResp>({
   id: 0,
-  category_id: 0,
+  category_id: 1,
   title: '',
   slug: '',
   summary: '',
@@ -55,7 +101,7 @@ export const blogInfoRes = ref<BlogInfoResp>({
 export const queryBlogInfo = async (param: InfoReq) => {
   blogInfoLoading.value = true
   try {
-    const { data } = await blogInfo(param)
+    const { data } = await postInfo(param)
     if (data.status) {
       blogInfoRes.value = data.data
     } else {
@@ -68,11 +114,11 @@ export const queryBlogInfo = async (param: InfoReq) => {
 }
 
 export const blogCreateLoading = ref(false)
-export const handlerBlogCreate = async (param: BlogCreateReq) => {
+export const handlerBlogCreate = async (param: PostCreateReq) => {
   blogCreateLoading.value = true
 
   try {
-    const { data } = await blogCreate(param)
+    const { data } = await postCreate(param)
     if (data.status) {
       return true
     } else {
@@ -86,11 +132,11 @@ export const handlerBlogCreate = async (param: BlogCreateReq) => {
 }
 
 export const blogUpdateLoading = ref(false)
-export const handlerBlogUpdate = async (id: number, param: BlogUpdateReq) => {
+export const handlerBlogUpdate = async (id: number, param: PostUpdateReq) => {
   blogUpdateLoading.value = true
 
   try {
-    const { data } = await blogUpdate(id, param)
+    const { data } = await postUpdate(id, param)
     if (data.status) {
       return true
     } else {
@@ -120,7 +166,7 @@ export const handlerBlogDelete = async (param: DeleteReq) => {
 
   blogDeleteLoading.value = true
   try {
-    const { data } = await blogDelete(param)
+    const { data } = await postDelete(param)
     if (data.status) {
       ElMessage.success('Deleted successfully')
     } else {

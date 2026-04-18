@@ -1,4 +1,9 @@
-export interface BlogListItemResp {
+export interface PostOptionItemResp {
+  id: number
+  label: string
+}
+
+export interface PostListItemResp {
   id: number
   category_id: number
   title: string
@@ -7,7 +12,7 @@ export interface BlogListItemResp {
   created_at: string
 }
 
-export interface BlogInfoResp {
+export interface PostInfoResp {
   id: number
   category_id: number
   title: string

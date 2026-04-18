@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import MdEditor from '@/components/MdEditor.vue'
-import { handlerBlogCreate } from '@/compositions/useBlog'
-import { useBlogOptions } from '@/compositions/useBlogOptions'
+import {
+  handlerBlogCreate,
+  postCategoryRes,
+  postStatusRes,
+  queryPostCategory,
+  queryPostStatus,
+} from '@/compositions/useBlog'
 import { BlogCategory, BlogStatus } from '@/enums/post'
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
@@ -38,7 +43,8 @@ const handlerReset = () => {
   }
 }
 
-const { categoryOptions, statusOptions } = useBlogOptions()
+queryPostCategory()
+queryPostStatus()
 </script>
 
 <template>
@@ -55,10 +61,10 @@ const { categoryOptions, statusOptions } = useBlogOptions()
       <el-form-item label="Category">
         <el-select v-model="formData.category_id" placeholder="Select category">
           <el-option
-            v-for="item in categoryOptions"
-            :key="item.value"
+            v-for="item in postCategoryRes"
+            :key="item.id"
             :label="item.label"
-            :value="item.value"
+            :value="item.id"
           />
         </el-select>
       </el-form-item>
@@ -74,10 +80,10 @@ const { categoryOptions, statusOptions } = useBlogOptions()
       <el-form-item label="Status">
         <el-select v-model="formData.status">
           <el-option
-            v-for="item in statusOptions"
-            :key="item.value"
+            v-for="item in postStatusRes"
+            :key="item.id"
             :label="item.label"
-            :value="item.value"
+            :value="item.id"
           />
         </el-select>
       </el-form-item>

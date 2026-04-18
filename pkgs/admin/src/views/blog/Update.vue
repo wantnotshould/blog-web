@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import MdEditor from '@/components/MdEditor.vue'
-import { blogInfoRes, handlerBlogUpdate, queryBlogInfo } from '@/compositions/useBlog'
-import { useBlogOptions } from '@/compositions/useBlogOptions'
+import {
+  blogInfoRes,
+  handlerBlogUpdate,
+  postCategoryRes,
+  postStatusRes,
+  queryBlogInfo,
+  queryPostCategory,
+  queryPostStatus,
+} from '@/compositions/useBlog'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -14,7 +21,8 @@ const props = defineProps({
   },
 })
 
-const { categoryOptions, statusOptions } = useBlogOptions()
+queryPostCategory()
+queryPostStatus()
 
 // load data
 queryBlogInfo({ id: props.id })
@@ -54,10 +62,10 @@ const handlerUpdate = async () => {
       <el-form-item label="分类" prop="category_id">
         <el-select v-model="blogInfoRes.category_id" style="width: 200px" clearable>
           <el-option
-            v-for="item in categoryOptions"
-            :key="item.value"
+            v-for="item in postCategoryRes"
+            :key="item.id"
             :label="item.label"
-            :value="item.value"
+            :value="item.id"
           />
         </el-select>
       </el-form-item>
@@ -79,10 +87,10 @@ const handlerUpdate = async () => {
       <el-form-item label="状态" prop="status">
         <el-select v-model="blogInfoRes.status" placeholder="Select status" style="width: 200px">
           <el-option
-            v-for="item in statusOptions"
-            :key="item.value"
+            v-for="item in postStatusRes"
+            :key="item.id"
             :label="item.label"
-            :value="item.value"
+            :value="item.id"
           />
         </el-select>
       </el-form-item>

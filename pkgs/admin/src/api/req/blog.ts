@@ -1,12 +1,12 @@
 import type { ListReq } from '@/api/req/req'
 
-export interface BlogListReq extends ListReq {
+export interface PostListReq extends ListReq {
   keyword?: string
   category_id?: number
   status?: number
 }
 
-export interface BlogCreateReq {
+export interface PostCreateReq {
   category_id: number
   status: number
   slug: string
@@ -15,7 +15,7 @@ export interface BlogCreateReq {
   content: string
 }
 
-export interface BlogUpdateReq {
+export interface PostUpdateReq {
   category_id: number
   status: number
   slug: string

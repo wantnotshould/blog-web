@@ -5,16 +5,23 @@ import {
   handlerBlogDelete,
   handlerBlogPageChange,
   handlerBlogPerPageChange,
+  postCategoryRes,
+  postOptionToMap,
+  postStatusRes,
   queryBlogList,
+  queryPostCategory,
+  queryPostStatus,
 } from '@/compositions/useBlog'
-import { useBlogOptions } from '@/compositions/useBlogOptions'
 import { timeFormat } from '@blog/shared'
 
 const router = useRouter()
 
-const { categoryOptions } = useBlogOptions()
-
+queryPostCategory()
+queryPostStatus()
 queryBlogList()
+
+const categoryMap = computed(() => postOptionToMap(postCategoryRes.value))
+const statusMap = computed(() => postOptionToMap(postStatusRes.value))
 </script>
 
 <template>
@@ -41,18 +48,25 @@ queryBlogList()
           </el-form-item>
 
           <el-form-item label="分类" prop="category_id">
-            <el-select
-              placeholder="Select category"
-              style="width: 260px"
-              v-model="blogListCond.category_id"
-              clearable
-            >
+            <el-select style="width: 260px" v-model="blogListCond.category_id">
               <el-option label="全部" :value="0" />
               <el-option
-                v-for="item in categoryOptions"
-                :key="item.value"
+                v-for="item in postCategoryRes"
+                :key="item.id"
                 :label="item.label"
-                :value="item.value"
+                :value="item.id"
+              />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="状态" prop="status">
+            <el-select style="width: 260px" v-model="blogListCond.status">
+              <el-option label="全部" :value="0" />
+              <el-option
+                v-for="item in postStatusRes"
+                :key="item.id"
+                :label="item.label"
+                :value="item.id"
               />
             </el-select>
           </el-form-item>
@@ -70,7 +84,7 @@ queryBlogList()
       <el-table-column label="分类" prop="category_id" width="180" align="center">
         <template #default="{ row }">
           <el-tag>
-            {{ row.category_id }}
+            {{ categoryMap[row.category_id] || row.category_id }}
           </el-tag>
         </template>
       </el-table-column>
@@ -82,7 +96,7 @@ queryBlogList()
       <el-table-column prop="status" label="状态" width="130" align="center">
         <template #default="{ row }">
           <el-tag>
-            {{ row.status }}
+            {{ statusMap[row.status] || row.status }}
           </el-tag>
         </template>
       </el-table-column>

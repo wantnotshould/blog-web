@@ -34,7 +34,6 @@ const toolbars: ToolbarNames[] = [
   'codeRow',
   'code',
   'link',
-  'image',
   'table',
   'revoke',
   'next',
