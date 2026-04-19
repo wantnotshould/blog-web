@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import MdEditor from '@/components/MdEditor.vue'
 import {
-  blogInfoRes,
-  handlerBlogUpdate,
+  handlerPostUpdate,
   postCategoryRes,
+  postInfoRes,
   postStatusRes,
-  queryBlogInfo,
+  postUpdateFormRef,
   queryPostCategory,
+  queryPostInfo,
   queryPostStatus,
 } from '@/compositions/useBlog'
+import { postSaveRules } from '@/rules/post'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -25,12 +27,15 @@ queryPostCategory()
 queryPostStatus()
 
 // load data
-queryBlogInfo({ id: props.id })
+queryPostInfo({ id: props.id })
 
 const handlerUpdate = async () => {
-  const data = blogInfoRes.value
+  const form = postUpdateFormRef.value
+  if (!form) return
 
-  const result = await handlerBlogUpdate(data.id, {
+  const data = postInfoRes.value
+
+  const result = await handlerPostUpdate(data.id, {
     title: data.title,
     slug: data.slug,
     summary: data.summary,
@@ -54,13 +59,13 @@ const handlerUpdate = async () => {
       </div>
     </template>
 
-    <el-form :model="blogInfoRes" label-width="120px">
+    <el-form :model="postInfoRes" label-width="120px" ref="postUpdateFormRef" :rules="postSaveRules(true)">
       <el-form-item label="标题" prop="title">
-        <el-input v-model="blogInfoRes.title" placeholder="输入标题" autocomplete="off" />
+        <el-input v-model="postInfoRes.title" placeholder="输入标题" autocomplete="off" />
       </el-form-item>
 
       <el-form-item label="分类" prop="category_id">
-        <el-select v-model="blogInfoRes.category_id" style="width: 200px" clearable>
+        <el-select v-model="postInfoRes.category_id" style="width: 200px" clearable>
           <el-option
             v-for="item in postCategoryRes"
             :key="item.id"
@@ -71,12 +76,12 @@ const handlerUpdate = async () => {
       </el-form-item>
 
       <el-form-item label="Slug" prop="slug">
-        <el-input v-model="blogInfoRes.slug" placeholder="Enter a URL-friendly slug" clearable />
+        <el-input v-model="postInfoRes.slug" placeholder="Enter a URL-friendly slug" clearable />
       </el-form-item>
 
       <el-form-item label="描述" prop="summary">
         <el-input
-          v-model="blogInfoRes.summary"
+          v-model="postInfoRes.summary"
           type="textarea"
           :rows="3"
           placeholder="输入描述信息"
@@ -85,7 +90,7 @@ const handlerUpdate = async () => {
       </el-form-item>
 
       <el-form-item label="状态" prop="status">
-        <el-select v-model="blogInfoRes.status" placeholder="Select status" style="width: 200px">
+        <el-select v-model="postInfoRes.status" placeholder="Select status" style="width: 200px">
           <el-option
             v-for="item in postStatusRes"
             :key="item.id"
@@ -96,7 +101,7 @@ const handlerUpdate = async () => {
       </el-form-item>
 
       <el-form-item label="内容" prop="content">
-        <MdEditor v-model="blogInfoRes.content" height="400px" />
+        <MdEditor v-model="postInfoRes.content" height="400px" />
       </el-form-item>
 
       <el-form-item>

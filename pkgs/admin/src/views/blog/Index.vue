@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import {
-  blogListCond,
-  blogListRes,
-  handlerBlogDelete,
-  handlerBlogPageChange,
-  handlerBlogPerPageChange,
+  handlerPostDelete,
+  handlerPostPageChange,
+  handlerPostPerPageChange,
   postCategoryRes,
+  postListCond,
+  postListRes,
   postOptionToMap,
   postStatusRes,
-  queryBlogList,
   queryPostCategory,
+  queryPostList,
+  queryPostListFormRef,
   queryPostStatus,
 } from '@/compositions/useBlog'
+import { listRules } from '@/rules/rule'
 import { timeFormat } from '@blog/shared'
 
 const router = useRouter()
 
 queryPostCategory()
 queryPostStatus()
-queryBlogList()
+queryPostList()
 
 const categoryMap = computed(() => postOptionToMap(postCategoryRes.value))
 const statusMap = computed(() => postOptionToMap(postStatusRes.value))
@@ -35,20 +37,21 @@ const statusMap = computed(() => postOptionToMap(postStatusRes.value))
         <el-form
           class="header-form"
           :inline="true"
-          ref="queryBlogListFormRef"
-          :model="blogListCond"
+          ref="queryPostListFormRef"
+          :model="postListCond"
+          :rules="listRules"
         >
-          <el-form-item>
+          <el-form-item prop="keyword">
             <el-input
               placeholder="输入搜索内容..."
               autocomplete="off"
               clearable
-              v-model="blogListCond.keyword"
+              v-model="postListCond.keyword"
             />
           </el-form-item>
 
           <el-form-item label="分类" prop="category_id">
-            <el-select style="width: 260px" v-model="blogListCond.category_id">
+            <el-select style="width: 260px" v-model="postListCond.category_id">
               <el-option label="全部" :value="0" />
               <el-option
                 v-for="item in postCategoryRes"
@@ -60,7 +63,7 @@ const statusMap = computed(() => postOptionToMap(postStatusRes.value))
           </el-form-item>
 
           <el-form-item label="状态" prop="status">
-            <el-select style="width: 260px" v-model="blogListCond.status">
+            <el-select style="width: 260px" v-model="postListCond.status">
               <el-option label="全部" :value="0" />
               <el-option
                 v-for="item in postStatusRes"
@@ -72,13 +75,14 @@ const statusMap = computed(() => postOptionToMap(postStatusRes.value))
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="queryBlogList(blogListCond)"> 搜索 </el-button>
+            <el-button @click="queryPostListFormRef?.resetFields()">重置</el-button>
+            <el-button type="primary" @click="queryPostList(postListCond)"> 搜索 </el-button>
           </el-form-item>
         </el-form>
       </div>
     </template>
 
-    <el-table :data="blogListRes.content" border style="width: 100%">
+    <el-table :data="postListRes.content" border style="width: 100%">
       <el-table-column type="index" label="序号" width="100" align="center" />
 
       <el-table-column label="分类" prop="category_id" width="180" align="center">
@@ -110,7 +114,7 @@ const statusMap = computed(() => postOptionToMap(postStatusRes.value))
           编辑
         </el-button>
 
-        <el-button type="danger" text @click="handlerBlogDelete({ id: row.id })"> 删除 </el-button>
+        <el-button type="danger" text @click="handlerPostDelete({ id: row.id })"> 删除 </el-button>
       </el-table-column>
 
       <el-table-column
@@ -124,13 +128,13 @@ const statusMap = computed(() => postOptionToMap(postStatusRes.value))
 
     <template #footer>
       <el-pagination
-        v-model:current-page="blogListCond.page"
-        v-model:page-size="blogListCond.per_page"
+        v-model:current-page="postListCond.page"
+        v-model:page-size="postListCond.per_page"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="blogListRes.count"
-        @size-change="handlerBlogPerPageChange"
-        @current-change="handlerBlogPageChange"
+        :total="postListRes.count"
+        @size-change="handlerPostPerPageChange"
+        @current-change="handlerPostPageChange"
       />
     </template>
   </el-card>
@@ -139,9 +143,10 @@ const statusMap = computed(() => postOptionToMap(postStatusRes.value))
 <style lang="scss" scoped>
 .card-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  flex-wrap: nowrap;
+  align-items: flex-start;
+  flex-direction: column;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -153,8 +158,8 @@ const statusMap = computed(() => postOptionToMap(postStatusRes.value))
 }
 
 .header-form {
-  flex-shrink: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   .el-form-item {

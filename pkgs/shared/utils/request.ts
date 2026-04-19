@@ -2,7 +2,6 @@ import { AxiosRequestConfig } from 'axios'
 import { blake2b } from 'blakejs'
 
 const API_KEY = import.meta.env.VITE_PUBLIC_KEY
-console.log(API_KEY)
 
 const strToUtf8Bytes = (str: string): Uint8Array => {
   return new TextEncoder().encode(str)
@@ -76,8 +75,6 @@ export function getSignatureHeaders(config: AxiosRequestConfig) {
   const ts = Math.floor(Date.now() / 1000).toString()
   const payload = generateSignaturePayload(config, ts)
   const sig = hmacBlake2b256(payload)
-
-  console.log(payload)
 
   return {
     'X-Timestamp': ts,

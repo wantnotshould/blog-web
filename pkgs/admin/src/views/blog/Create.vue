@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import MdEditor from '@/components/MdEditor.vue'
 import {
-  handlerBlogCreate,
+  handlerPostCreate,
   postCategoryRes,
+  postCreateFormRef,
   postStatusRes,
   queryPostCategory,
   queryPostStatus,
 } from '@/compositions/useBlog'
 import { BlogCategory, BlogStatus } from '@/enums/post'
+import { postSaveRules } from '@/rules/post'
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -24,7 +26,10 @@ const formData = ref({
 })
 
 const handlerCreate = async () => {
-  const result = await handlerBlogCreate(formData.value)
+  const form = postCreateFormRef.value
+  if (!form) return
+
+  const result = await handlerPostCreate(formData.value)
 
   if (result) {
     ElMessage.success('Success')
@@ -36,11 +41,12 @@ const handlerReset = () => {
   formData.value = {
     title: '',
     slug: '',
-    category_id: BlogCategory.Essay,
+    category_id: 1,
     summary: '',
-    status: BlogStatus.Draft,
+    status: 1,
     content: '',
   }
+  postCreateFormRef.value?.resetFields()
 }
 
 queryPostCategory()
@@ -53,12 +59,12 @@ queryPostStatus()
       <span>写文章</span>
     </template>
 
-    <el-form :model="formData" label-width="120px">
-      <el-form-item label="Title">
+    <el-form :model="formData" label-width="120px" ref="postCreateFormRef" :rules="postSaveRules()">
+      <el-form-item label="标题" prop="title">
         <el-input v-model="formData.title" />
       </el-form-item>
 
-      <el-form-item label="Category">
+      <el-form-item label="类型" prop="category_id">
         <el-select v-model="formData.category_id" placeholder="Select category">
           <el-option
             v-for="item in postCategoryRes"
@@ -69,15 +75,15 @@ queryPostStatus()
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Slug">
+      <el-form-item label="Slug" prop="slug">
         <el-input v-model="formData.slug" />
       </el-form-item>
 
-      <el-form-item label="Summary">
+      <el-form-item label="描述" prop="summary">
         <el-input type="textarea" v-model="formData.summary" />
       </el-form-item>
 
-      <el-form-item label="Status">
+      <el-form-item label="状态" prop="status">
         <el-select v-model="formData.status">
           <el-option
             v-for="item in postStatusRes"
@@ -88,7 +94,7 @@ queryPostStatus()
         </el-select>
       </el-form-item>
 
-      <el-form-item label="Content">
+      <el-form-item label="内容" prop="content">
         <MdEditor v-model="formData.content" height="400px" />
       </el-form-item>
 

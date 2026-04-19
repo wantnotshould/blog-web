@@ -11,8 +11,8 @@ import type { PostCreateReq, PostListReq, PostUpdateReq } from '@/api/req/blog'
 import type { DeleteReq, InfoReq } from '@/api/req/req'
 import type { PostInfoResp, PostListItemResp, PostOptionItemResp } from '@/api/resp/blog'
 import type { PageContent } from '@/api/resp/resp'
-import { handlerError } from '@/utils/error'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { handlerError, handlerFormValidationError } from '@/utils/error'
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { reactive, ref } from 'vue'
 
 export const postOptionToMap = (list: PostOptionItemResp[]) => {
@@ -51,44 +51,55 @@ export const queryPostStatus = async () => {
   }
 }
 
-export const blogListLoading = ref(false)
-export const blogListCond = reactive<PostListReq>({
+export const postListLoading = ref(false)
+export const postListCond = reactive<PostListReq>({
   category_id: 0,
   status: 0,
   page: 1,
   per_page: 20,
 })
-export const blogListRes = ref<PageContent<PostListItemResp>>({
+export const postListRes = ref<PageContent<PostListItemResp>>({
   count: 0,
   content: [],
 })
+export const queryPostListFormRef = ref<FormInstance>()
+export const queryPostList = async (param: PostListReq = { page: 1, per_page: 20 }) => {
+  try {
+    await queryPostListFormRef.value?.validate()
+  } catch (err) {
+    handlerFormValidationError(err)
+    return
+  }
 
-export const queryBlogList = async (param: PostListReq = { page: 1, per_page: 20 }) => {
-  blogListLoading.value = true
-  Object.assign(blogListCond, param)
+  postListLoading.value = true
+
+  Object.assign(postListCond, param)
+
   try {
     const { data } = await postList(param)
+
     if (data.status) {
-      blogListRes.value = data.data
+      postListRes.value = data.data
     } else {
       throw new Error(data.message)
     }
   } catch (err) {
+    handlerError?.(err)
   } finally {
-    blogListLoading.value = false
+    postListLoading.value = false
   }
 }
-export const handlerBlogPageChange = (page: number) => {
-  blogListCond.page = page
-  queryBlogList(blogListCond)
+export const handlerPostPageChange = (page: number) => {
+  postListCond.page = page
+  queryPostList(postListCond)
 }
-export const handlerBlogPerPageChange = (perPage: number) => {
-  blogListCond.per_page = perPage
-  handlerBlogPageChange(1)
+export const handlerPostPerPageChange = (perPage: number) => {
+  postListCond.per_page = perPage
+  handlerPostPageChange(1)
 }
 
-export const blogInfoLoading = ref(false)
-export const blogInfoRes = ref<PostInfoResp>({
+export const postInfoLoading = ref(false)
+export const postInfoRes = ref<PostInfoResp>({
   id: 0,
   category_id: 1,
   title: '',
@@ -98,42 +109,55 @@ export const blogInfoRes = ref<PostInfoResp>({
   status: 1,
   created_at: '',
 })
-export const queryBlogInfo = async (param: InfoReq) => {
-  blogInfoLoading.value = true
+export const queryPostInfo = async (param: InfoReq) => {
+  postInfoLoading.value = true
   try {
     const { data } = await postInfo(param)
     if (data.status) {
-      blogInfoRes.value = data.data
+      postInfoRes.value = data.data
     } else {
       throw new Error(data.message)
     }
   } catch (err) {
   } finally {
-    blogInfoLoading.value = false
+    postInfoLoading.value = false
   }
 }
 
-export const blogCreateLoading = ref(false)
-export const handlerBlogCreate = async (param: PostCreateReq) => {
-  blogCreateLoading.value = true
+export const postCreateLoading = ref(false)
+export const postCreateFormRef = ref<FormInstance>()
+export const handlerPostCreate = async (param: PostCreateReq) => {
+  try {
+    await postCreateFormRef.value?.validate()
+  } catch (err) {
+    handlerFormValidationError(err)
+    return false
+  }
+
+  postCreateLoading.value = true
 
   try {
     const { data } = await postCreate(param)
-    if (data.status) {
-      return true
-    } else {
-      throw new Error(data.message)
-    }
+    return !!data.status
   } catch (err) {
     handlerError(err)
+    return false
   } finally {
-    blogCreateLoading.value = false
+    postCreateLoading.value = false
   }
 }
 
-export const blogUpdateLoading = ref(false)
-export const handlerBlogUpdate = async (id: number, param: PostUpdateReq) => {
-  blogUpdateLoading.value = true
+export const postUpdateLoading = ref(false)
+export const postUpdateFormRef = ref<FormInstance>()
+export const handlerPostUpdate = async (id: number, param: PostUpdateReq) => {
+  try {
+    await postUpdateFormRef.value?.validate()
+  } catch (err) {
+    handlerFormValidationError(err)
+    return false
+  }
+
+  postUpdateLoading.value = true
 
   try {
     const { data } = await postUpdate(id, param)
@@ -144,38 +168,36 @@ export const handlerBlogUpdate = async (id: number, param: PostUpdateReq) => {
     }
   } catch (err) {
     handlerError(err)
+    return false
   } finally {
-    blogUpdateLoading.value = false
+    postUpdateLoading.value = false
   }
 }
 
-export const blogDeleteLoading = ref(false)
-export const handlerBlogDelete = async (param: DeleteReq) => {
-  const confirmDelete = await ElMessageBox.confirm(
-    'Are you sure you want to delete this item?',
-    'Confirm Deletion',
-    {
-      type: 'warning',
-    }
-  ).catch(() => {
-    ElMessage.info('Deletion canceled')
+export const postDeleteLoading = ref(false)
+export const handlerPostDelete = async (param: DeleteReq) => {
+  const confirmDelete = await ElMessageBox.confirm('确定要删除吗？', '删除确认', {
+    type: 'warning',
+  }).catch(() => {
+    ElMessage.info('删除取消')
     return false
   })
 
   if (!confirmDelete) return
 
-  blogDeleteLoading.value = true
+  postDeleteLoading.value = true
   try {
     const { data } = await postDelete(param)
     if (data.status) {
-      ElMessage.success('Deleted successfully')
+      ElMessage.success('删除成功')
     } else {
       throw new Error(data.message)
     }
   } catch (err) {
     handlerError(err)
+    return false
   } finally {
-    blogDeleteLoading.value = false
-    queryBlogList()
+    postDeleteLoading.value = false
+    queryPostList()
   }
 }
