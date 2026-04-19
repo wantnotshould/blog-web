@@ -30,7 +30,6 @@ export function useBlogDetail() {
       res.value = data.data
       return data.data
     } catch (err: any) {
-      console.error('[useBlogDetail error]', err)
       error.value = err
       router.replace({ name: 'not-found' })
       return null
