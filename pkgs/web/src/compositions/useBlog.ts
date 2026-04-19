@@ -6,32 +6,19 @@ import type { PageContent } from '@/api/resp/resp'
 export function useBlogList() {
   const loading = ref(false)
 
-  const cond = reactive<ListReq>({
-    per_page: 20,
-    page: 1,
-  })
-
   const res = ref<PageContent<BlogListItemResp>>({
     count: 0,
     content: [],
   })
 
-  const query = async (param?: Partial<ListReq>) => {
+  const query = async (param: ListReq) => {
     loading.value = true
 
     try {
-      const finalParam = {
-        page: param?.page ?? cond.page,
-        per_page: param?.per_page ?? cond.per_page,
-      }
-
-      cond.page = finalParam.page
-      cond.per_page = finalParam.per_page
-
-      const { data } = await blogList(finalParam)
+      const { data } = await blogList(param)
 
       if (!data.status) {
-        throw new Error(data.message || 'fetch blog list failed')
+        throw new Error(data.message)
       }
 
       res.value = data.data
@@ -42,20 +29,9 @@ export function useBlogList() {
     }
   }
 
-  const changePage = (page: number) => {
-    query({ page })
-  }
-
-  const changePerPage = (perPage: number) => {
-    query({ page: 1, per_page: perPage })
-  }
-
   return {
     loading,
-    cond,
     res,
     query,
-    changePage,
-    changePerPage,
   }
 }

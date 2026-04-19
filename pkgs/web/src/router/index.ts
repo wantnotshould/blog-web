@@ -13,9 +13,9 @@ const router = createRouter({
           component: () => import('@/views/About.vue'),
         },
         {
-          path: 'ls',
+          path: 'ls/:p?',
           name: 'ls',
-          props: (route: { params: { p: number } }) => ({
+          props: route => ({
             p: Number(route.params.p) || 1,
           }),
           component: () => import('@/views/Posts.vue'),
