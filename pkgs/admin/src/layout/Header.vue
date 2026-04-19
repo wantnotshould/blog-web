@@ -35,7 +35,7 @@ const handlerUserLogout = async () => {
   <el-header>
     <el-icon @click="uiState.toggleCollapse">
       <el-icon v-show="uiState.isCollapse"><expand /></el-icon>
-      <el-icon v-show="uiState.isCollapse"><fold /></el-icon>
+      <el-icon v-show="!uiState.isCollapse"><fold /></el-icon>
     </el-icon>
 
     <el-breadcrumb separator="/">
