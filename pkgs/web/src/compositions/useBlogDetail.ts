@@ -1,6 +1,7 @@
 import { blogDetail } from '@/api/handler/blog'
 import type { BlogDetailReq } from '@/api/req/blog'
 import type { BlogDetailResp } from '@/api/resp/blog'
+import router from '@/router'
 
 export function useBlogDetail() {
   const loading = ref(false)
@@ -31,6 +32,7 @@ export function useBlogDetail() {
     } catch (err: any) {
       console.error('[useBlogDetail error]', err)
       error.value = err
+      router.replace({ name: 'not-found' })
       return null
     } finally {
       loading.value = false
