@@ -1,35 +1,31 @@
 <script setup lang="ts">
 import { useBlogList } from '@/compositions/useBlog'
+import { usePaginationRouter } from '@/compositions/usePaginationRouter'
 import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const props = defineProps<{ p?: number }>()
+const { page, next, prev, go } = usePaginationRouter()
 
-const { loading, cond, res, query, changePage } = useBlogList()
+const { loading, res, query } = useBlogList()
 
 watch(
-  () => props.p,
-  page => {
-    const target = Number(page) || 1
-    changePage(target)
+  page,
+  p => {
+    query({
+      page: p,
+      per_page: 20,
+    })
   },
   { immediate: true }
 )
 
 const hasContent = computed(() => res.value.count > 0)
 
-const totalPages = computed(() => Math.max(1, Math.ceil(res.value.count / cond.per_page)))
-
-watch(totalPages, tp => {
-  if (cond.page > tp) {
-    changePage(1)
-    router.replace({ name: 'posts-base' })
-  }
-})
+const totalPages = computed(() => Math.max(1, Math.ceil(res.value.count / 20)))
 
 const pagesArray = computed(() => {
-  const current = cond.page
+  const current = page.value
   const limit = 5
 
   let start = Math.max(current - Math.floor(limit / 2), 1)
@@ -48,30 +44,6 @@ const formatDate = (dateStr: string) =>
     day: 'numeric',
     year: 'numeric',
   }).format(new Date(dateStr))
-
-query()
-
-const goPage = (page: number) => {
-  if (page === 1) {
-    router.push({ name: 'posts-base' })
-  } else {
-    router.push({ name: 'posts', params: { p: page } })
-  }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-const handlePrevPage = () => {
-  if (cond.page > 1) goPage(cond.page - 1)
-}
-
-const handleNextPage = () => {
-  if (cond.page < totalPages.value) goPage(cond.page + 1)
-}
-
-const handlePageChange = (page: number) => {
-  if (page !== cond.page) goPage(page)
-}
 </script>
 
 <template>
@@ -97,33 +69,21 @@ const handlePageChange = (page: number) => {
         </ul>
 
         <div class="pagination" v-if="totalPages > 1">
-          <span
-            class="pagination-btn"
-            :class="{ disabled: cond.page === 1 }"
-            @click="handlePrevPage"
-          >
-            <
-          </span>
+          <span class="pagination-btn" :class="{ disabled: page === 1 }" @click="prev"> < </span>
 
           <div class="page-numbers">
             <span
-              v-for="page in pagesArray"
-              :key="page"
+              v-for="p in pagesArray"
+              :key="p"
               class="page-number"
-              :class="{
-                active: page === cond.page,
-              }"
-              @click="handlePageChange(page)"
+              :class="{ active: p === page }"
+              @click="go(p)"
             >
-              {{ page }}
+              {{ p }}
             </span>
           </div>
 
-          <span
-            class="pagination-btn"
-            :class="{ disabled: cond.page >= totalPages }"
-            @click="handleNextPage"
-          >
+          <span class="pagination-btn" :class="{ disabled: page >= totalPages }" @click="next">
             >
           </span>
         </div>
