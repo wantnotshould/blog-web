@@ -1,11 +1,12 @@
-import { AxiosRequestConfig } from 'axios'
+import type { AxiosRequestConfig } from 'axios'
 import { blake2b } from 'blakejs'
 
-const API_KEY = import.meta.env.VITE_PUBLIC_KEY
+const API_KEY = import.meta.env.VITE_PUBLIC_KEY ?? ''
 
 const strToUtf8Bytes = (str: string): Uint8Array => {
   return new TextEncoder().encode(str)
 }
+
 export const hmacBlake2b256 = (data: string): string => {
   const blockSize = 128
   const outlen = 32
@@ -14,7 +15,7 @@ export const hmacBlake2b256 = (data: string): string => {
   const dataUint8 = strToUtf8Bytes(data)
 
   if (keyUint8.length > blockSize) {
-    keyUint8 = blake2b(keyUint8, null, outlen)
+    keyUint8 = blake2b(keyUint8, undefined, outlen)
   }
 
   const k_pad = new Uint8Array(blockSize)
@@ -32,12 +33,14 @@ export const hmacBlake2b256 = (data: string): string => {
   const inner = new Uint8Array(blockSize + dataUint8.length)
   inner.set(i_key_pad)
   inner.set(dataUint8, blockSize)
-  const innerHash = blake2b(inner, null, outlen)
+
+  const innerHash = blake2b(inner, undefined, outlen)
 
   const outer = new Uint8Array(blockSize + innerHash.length)
   outer.set(o_key_pad)
   outer.set(innerHash, blockSize)
-  const finalHash = blake2b(outer, null, outlen)
+
+  const finalHash = blake2b(outer, undefined, outlen)
 
   return Array.from(finalHash)
     .map(b => b.toString(16).padStart(2, '0'))
@@ -64,7 +67,7 @@ export function generateSignaturePayload(config: AxiosRequestConfig, ts: string)
   if (config.data) {
     if (config.data instanceof FormData) {
     } else {
-      payload += typeof config.data === 'object' ? JSON.stringify(config.data) : config.data
+      payload += typeof config.data === 'object' ? JSON.stringify(config.data) : String(config.data)
     }
   }
 
