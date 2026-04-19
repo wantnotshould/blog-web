@@ -13,6 +13,22 @@ const router = createRouter({
           component: () => import('@/views/About.vue'),
         },
         {
+          path: 'ls',
+          name: 'ls',
+          props: (route: { params: { p: number } }) => ({
+            p: Number(route.params.p) || 1,
+          }),
+          component: () => import('@/views/Posts.vue'),
+        },
+        {
+          path: 'cat/:slug',
+          name: 'cat',
+          props: (route: { params: { slug: string } }) => ({
+            slug: String(route.params.slug),
+          }),
+          component: () => import('@/views/Detail.vue'),
+        },
+        {
           path: '404',
           name: 'not-found',
           component: () => import('@/views/pages/NotFound.vue'),

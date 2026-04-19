@@ -1,11 +1,3 @@
-export interface InfoReq {
-  id: number
-}
-
-export interface DeleteReq {
-  id: number
-}
-
 export interface PaginationReq {
   page: number
   per_page: number

@@ -21,7 +21,7 @@ interface MenuItemWithStatus extends MenuItem {
   children?: MenuItemWithStatus[]
 }
 
-const menus = ref<MenuItem[]>([])
+const menus = ref<MenuItem[]>([{ text: '博客', name: 'ls', matchNames: ['ls', 'cat'] }])
 
 const menusStatus = computed<MenuItemWithStatus[]>(() => {
   const currentName = route.name as string | undefined
