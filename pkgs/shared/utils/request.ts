@@ -1,44 +1,52 @@
-import { AxiosRequestConfig } from 'axios'
+import type { AxiosRequestConfig } from 'axios'
 import { blake2b } from 'blakejs'
 
-const API_KEY = import.meta.env.VITE_PUBLIC_KEY
+const API_KEY = import.meta.env.VITE_PUBLIC_KEY ?? ''
 
 const strToUtf8Bytes = (str: string): Uint8Array => {
   return new TextEncoder().encode(str)
 }
+
+const BLOCK_SIZE = 128
+const OUTLEN = 32
+
 export const hmacBlake2b256 = (data: string): string => {
-  const blockSize = 128
-  const outlen = 32
+  const key = strToUtf8Bytes(API_KEY)
+  const msg = strToUtf8Bytes(data)
 
-  let keyUint8 = strToUtf8Bytes(API_KEY)
-  const dataUint8 = strToUtf8Bytes(data)
-
-  if (keyUint8.length > blockSize) {
-    keyUint8 = blake2b(keyUint8, null, outlen)
+  let k = key
+  if (k.length > BLOCK_SIZE) {
+    k = blake2b(k, undefined, OUTLEN)
   }
 
-  const k_pad = new Uint8Array(blockSize)
-  k_pad.set(keyUint8)
+  // pad key
+  const kPad = new Uint8Array(BLOCK_SIZE)
+  kPad.set(k)
 
-  const o_key_pad = new Uint8Array(blockSize)
-  const i_key_pad = new Uint8Array(blockSize)
+  const oPad = new Uint8Array(BLOCK_SIZE)
+  const iPad = new Uint8Array(BLOCK_SIZE)
 
-  for (let i = 0; i < blockSize; i++) {
-    const byte = k_pad[i] as number
-    o_key_pad[i] = byte ^ 0x5c
-    i_key_pad[i] = byte ^ 0x36
+  for (let i = 0; i < BLOCK_SIZE; i++) {
+    const b = kPad[i] as number
+    oPad[i] = b ^ 0x5c
+    iPad[i] = b ^ 0x36
   }
 
-  const inner = new Uint8Array(blockSize + dataUint8.length)
-  inner.set(i_key_pad)
-  inner.set(dataUint8, blockSize)
-  const innerHash = blake2b(inner, null, outlen)
+  // inner hash
+  const innerData = new Uint8Array(BLOCK_SIZE + msg.length)
+  innerData.set(iPad)
+  innerData.set(msg, BLOCK_SIZE)
 
-  const outer = new Uint8Array(blockSize + innerHash.length)
-  outer.set(o_key_pad)
-  outer.set(innerHash, blockSize)
-  const finalHash = blake2b(outer, null, outlen)
+  const innerHash = blake2b(innerData, undefined, OUTLEN)
 
+  // outer hash
+  const outerData = new Uint8Array(BLOCK_SIZE + innerHash.length)
+  outerData.set(oPad)
+  outerData.set(innerHash, BLOCK_SIZE)
+
+  const finalHash = blake2b(outerData, undefined, OUTLEN)
+
+  // hex output
   return Array.from(finalHash)
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
@@ -64,7 +72,7 @@ export function generateSignaturePayload(config: AxiosRequestConfig, ts: string)
   if (config.data) {
     if (config.data instanceof FormData) {
     } else {
-      payload += typeof config.data === 'object' ? JSON.stringify(config.data) : config.data
+      payload += typeof config.data === 'object' ? JSON.stringify(config.data) : String(config.data)
     }
   }
 

@@ -2,9 +2,9 @@
 import { useLogin } from '@/compositions/useLogin'
 import { loginRules } from '@/rules/user'
 import { useUIState } from '@/stores/uiStore'
+import { Moon, Sunny } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
-
 const uiState = useUIState()
 const router = useRouter()
 const route = useRoute()
@@ -26,8 +26,8 @@ const handleLogin = async () => {
   <div class="login">
     <div class="theme-toggle">
       <el-icon @click="uiState.toggleTheme()">
-        <i-ep-sunny v-if="uiState.isDark" />
-        <i-ep-moon v-else />
+        <el-icon v-if="uiState.isDark"><sunny /></el-icon>
+        <el-icon v-else><moon /></el-icon>
       </el-icon>
     </div>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useUIState } from '@/stores/uiStore'
+import { Guide, Memo } from '@element-plus/icons-vue'
 
 const uiState = useUIState()
 </script>
@@ -12,10 +13,10 @@ const uiState = useUIState()
         <h1>cdme</h1>
       </a>
       <el-menu-item index="/">
-        <el-icon><i-ep-guide /></el-icon><span>首页</span>
+        <el-icon><guide /></el-icon><span>首页</span>
       </el-menu-item>
       <el-menu-item index="/blog">
-        <el-icon><i-ep-memo /></el-icon><span>博客</span>
+        <el-icon><memo /></el-icon><span>博客</span>
       </el-menu-item>
     </el-menu>
   </el-aside>

@@ -4,7 +4,6 @@ import path from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 import AutoImport from 'unplugin-auto-import/vite'
 import IconsResolver from 'unplugin-icons/resolver'
-import Icons from 'unplugin-icons/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig, loadEnv } from 'vite'
@@ -72,9 +71,6 @@ export default ({ mode }: { mode: string }) => {
           // Auto register Element Plus components
           ElementPlusResolver(),
         ],
-      }),
-      Icons({
-        autoInstall: true,
       }),
     ],
     resolve: {

@@ -3,6 +3,7 @@ import { userLogout } from '@/api/handler/user'
 import { useUIState } from '@/stores/uiStore'
 import { useUserStore } from '@/stores/userStore'
 import { removeItem } from '@blog/shared'
+import { ArrowDown, Expand, Fold, Moon, Sunny, SwitchButton } from '@element-plus/icons-vue'
 
 const uiState = useUIState()
 const router = useRouter()
@@ -33,8 +34,8 @@ const handlerUserLogout = async () => {
 <template>
   <el-header>
     <el-icon @click="uiState.toggleCollapse">
-      <i-ep-Expand v-show="uiState.isCollapse" />
-      <i-ep-Fold v-show="!uiState.isCollapse" />
+      <el-icon v-show="uiState.isCollapse"><expand /></el-icon>
+      <el-icon v-show="uiState.isCollapse"><fold /></el-icon>
     </el-icon>
 
     <el-breadcrumb separator="/">
@@ -48,8 +49,8 @@ const handlerUserLogout = async () => {
 
     <div class="header-right">
       <el-icon @click="uiState.toggleTheme()">
-        <i-ep-sunny v-if="uiState.isDark" />
-        <i-ep-moon v-else />
+        <el-icon v-if="uiState.isDark"><sunny /></el-icon>
+        <el-icon v-else><moon /></el-icon>
       </el-icon>
 
       <el-dropdown>
@@ -60,13 +61,16 @@ const handlerUserLogout = async () => {
             </template>
           </el-avatar>
           <el-icon class="el-icon--right">
-            <i-ep-arrow-down />
+            <el-icon><arrow-down /></el-icon>
           </el-icon>
         </span>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item divided @click="handlerUserLogout">
-              <el-icon><i-ep-switch-button /></el-icon> <span>退出</span>
+              <el-icon>
+                <switch-button />
+              </el-icon>
+              <span>退出</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>

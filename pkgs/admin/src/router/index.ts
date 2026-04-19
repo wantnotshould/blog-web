@@ -13,6 +13,7 @@ const router = createRouter({
     {
       path: '/',
       component: () => import('@/layout/Layout.vue'),
+      redirect: '/index',
       children: [
         {
           path: '/',
@@ -35,7 +36,7 @@ const router = createRouter({
         {
           path: 'blog-update/:id',
           name: 'blog-update',
-          props: (route: { params: { id: number } }) => ({
+          props: route => ({
             id: Number(route.params.id),
           }),
           component: () => import('@/views/blog/Update.vue'),
